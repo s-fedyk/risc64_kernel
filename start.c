@@ -1,8 +1,10 @@
 #include <stdint.h>
+#include "start.h"
 
 int _get_hart_id();
 // make this visible
 __attribute__ ((aligned (16))) char stack[4096 * 5];
+__attribute__ ((aligned (16))) volatile int current_printer;
 
 void write_string(char *mstring) {
   uint8_t i = 0;
@@ -18,9 +20,23 @@ void write_integer(uint64_t mnumber) {
   return;
 }
 
+int my_function(int a) {
+  return a + 2;
+}
+
 int start() {
-  char mstring[] = {'f','a','t', ' ', 'c', 'u','n','t','1','\n','\0'};
+  int this_hart = _get_hart_id();
+
+  char mstring[] = {'h','a','r','t',' ', '#',' ','\0'};
+  char nl[] = {'\n','\0'};
+
+  while(current_printer != this_hart) ;
+
   write_string(mstring);
-  write_integer(_get_hart_id());
-  while (1) ;
+  write_integer(this_hart);
+  write_string(nl);
+
+  current_printer+=1;
+
+  return 0;
 }

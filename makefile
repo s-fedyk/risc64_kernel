@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Werror -O -fno-omit-frame-pointer -ggdb -gdwarf-2
+CFLAGS = -Wall -Werror -O -fno-omit-frame-pointer -ggdb -gdwarf-2 -g
 CFLAGS += -MD
 CFLAGS += -mcmodel=medany
 # CFLAGS += -ffreestanding -fno-common -nostdlib -mno-relax
@@ -12,23 +12,26 @@ CFLAGS += -fno-builtin-printf -fno-builtin-fprintf -fno-builtin-vprintf
 CFLAGS += -I.
 
 QEMUOPTS = -machine virt -bios none -kernel kernel -m 128M -nographic -smp 4
-QEMUOPTS += -serial mon:stdio
-
+QEMUOPTS += -serial mon:stdio 
+#QEMUOPTS += -S -gdb tcp::1234
 compile:
 	riscv64-unknown-elf-gcc $(CFLAGS) start.c -c
 	riscv64-unknown-elf-objdump -S start.o > start.asm
 objectify:
-	riscv64-unknown-elf-as entry.s -o entry.o
-	riscv64-unknown-elf-as cpu_utils.s -o cpu_utils.o
+	riscv64-unknown-elf-as -g entry.s -o entry.o 
+	riscv64-unknown-elf-as -g cpu_utils.s -o cpu_utils.o 
 	riscv64-unknown-elf-objdump -S entry.o > entry.asm
 link: compile objectify
-	riscv64-unknown-elf-ld -z max-page-size=4096 -T kernel.ld -o kernel entry.o start.o cpu_utils.o
+	riscv64-unknown-elf-ld -g -z max-page-size=4096 -T kernel.ld -o kernel entry.o start.o cpu_utils.o 
+	riscv64-unknown-elf-objdump -S kernel > kernel.asm
 
 qemu:
 	qemu-system-riscv64 $(QEMUOPTS)
 
+dbg:
+	gdb kernel
 clean:
-	rm *.o
-	rm *.asm
-	rm *.sym
-	rm kernel
+	-rm *.o
+	-rm *.asm
+	-rm *.sym
+	-rm kernel
