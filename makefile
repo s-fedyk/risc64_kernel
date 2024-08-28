@@ -34,6 +34,7 @@ dbg:
 	gdb kernel
 clean:
 	-rm *.o
+	-rm *.d
 	-rm *.asm
 	-rm *.sym
 	-rm kernel
