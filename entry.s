@@ -8,9 +8,6 @@ _entry:
         mv tp, a1 
         mul a0, a0, a1
         add sp, sp, a0
-        la a0, interrupt_handle_supervisor        
-        csrw stvec, a0
-        call _enable_interrupts
         call start
 spin:
         j spin

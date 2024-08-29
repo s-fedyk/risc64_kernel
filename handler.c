@@ -3,8 +3,9 @@
 
 uint64_t _get_interrupt_cause();
 
-__attribute__((interrupt ("supervisor")))
-void interrupt_handle_supervisor(void) {
+void interrupt_handle_supervisor() {
+  char string[] = "handling an interrupt";
   uint64_t cause = _get_interrupt_cause();
+  write_string(string);
   write_integer(cause);
 }
